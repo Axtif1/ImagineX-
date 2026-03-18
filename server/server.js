@@ -9,7 +9,7 @@ import followRoutes from "./routes/followRoutes.js"
 import profileRoutes from "./routes/profileRoutes.js"
 import errorHandler from "./middleware/errorhandler.js"
 import adminRoutes from "./routes/adminRoutes.js"
-import imageGenRoutes from "./routes/imageGenRoutes.js"
+import postRoutes from "./routes/postRoutes.js"
 
 dotenv.config()
 
@@ -48,8 +48,8 @@ app.use("/api/profile" , profileRoutes)
 //Admin Routes
 app.use("/api/admin" , adminRoutes)
 
-//Image Generation Routes
-app.use("/api/image" , imageGenRoutes)
+//Post Routes
+app.use("/api/post" , postRoutes)
 
 //Error Handler 
 app.use(errorHandler)
