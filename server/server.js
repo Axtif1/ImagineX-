@@ -10,6 +10,7 @@ import profileRoutes from "./routes/profileRoutes.js"
 import errorHandler from "./middleware/errorhandler.js"
 import adminRoutes from "./routes/adminRoutes.js"
 import postRoutes from "./routes/postRoutes.js"
+import savedPostRoutes from "./routes/savedPostRoutes.js"
 
 dotenv.config()
 
@@ -49,7 +50,11 @@ app.use("/api/profile" , profileRoutes)
 app.use("/api/admin" , adminRoutes)
 
 //Post Routes
-app.use("/api/post" , postRoutes)
+app.use("/api/posts" , postRoutes)
+
+//Save Post Routes
+app.use("/api/saved-posts" , savedPostRoutes)
+
 
 //Error Handler 
 app.use(errorHandler)
