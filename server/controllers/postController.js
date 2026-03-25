@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import uploadToCloudinary from "../middleware/cloudinaryMiddleware.js";
 import Post from "../models/postModel.js";
 import User from "../models/userModel.js";
+import Report from "../models/reportModel.js"
 
 
 
@@ -159,9 +160,42 @@ const likeAndUnlikePost = async (req , res) => {
 }
 
 
+const reportPost = async (req , res) =>{
 
 
-const postController = {generateAndPost , getPosts , getPost , likeAndUnlikePost}
+  const {text} = req.body
+  const postId = req.params.pid
+  const userId = req.user._id
+
+  if(!text){
+    res.status(409)
+    throw new Error("Please Enter Text")
+  }
+
+
+  const newReport = new Report({
+    user : userId,
+    post : postId,
+    text : text,
+  })
+
+  await newReport.save() 
+  await newReport.populate('user') 
+  await newReport.populate('post') 
+
+  if(!newReport){
+    res.status(409)
+    throw new Error("Unable To Reports This Post")
+  }
+
+  res.status(200).json(newReport)
+
+}
+
+
+
+
+const postController = {generateAndPost , getPosts , getPost , likeAndUnlikePost , reportPost}
 
 
 
