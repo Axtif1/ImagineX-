@@ -24,7 +24,7 @@ connectDB()
 
 //Body Parser
 app.use(express.json())
-app.use(express.urlencoded())
+app.use(express.urlencoded({ extended: false }))  
 
 // console.log(process.env.MONGO_URI)
 
