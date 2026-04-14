@@ -13,10 +13,11 @@ const registerUser = async (req , res) => {
     }
 
     //Check if user already exists
+    let userNameExist = await User.findOne({name : name})
     let emailExist = await User.findOne({email : email})
     let phoneExist = await User.findOne({phone : phone})
 
-    if(emailExist || phoneExist){
+    if(userNameExist || emailExist || phoneExist){
         res.status(409)
         throw new Error("User Already Exists!!")
     }
