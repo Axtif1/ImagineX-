@@ -1,30 +1,47 @@
-import React, { useState } from 'react';
-import { Navbar } from '../components/Navbar';
-import { Sidebar } from '../components/Sidebar';
-import { PromptInput } from '../components/PromptInput';
-import { GeneratedImage } from '../components/GeneratedImage';
+import React, { useEffect, useState } from 'react'
+import { PromptInput } from '../components/PromptInput'
+import { GeneratedImage } from '../components/GeneratedImage'
+import { useDispatch, useSelector } from 'react-redux'
+import { GeneratePost } from '../features/post/postSlice';
+import { toast } from 'react-toastify'
+import { Loader } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export const GeneratePage = () => {
+
+  const {post ,postLoading , postSuccess , postError , postErrorMessage} = useSelector(state => state.post)
+
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
   const [generationState, setGenerationState] = useState({
     isGenerating: false,
-    result: null // { imageUrl, prompt, style }
   });
 
+
   const handleGenerate = ({ prompt, style }) => {
-    setGenerationState({ isGenerating: true, result: null });
+    setGenerationState({ isGenerating: true});
+    dispatch(GeneratePost(`${prompt} , with this style ${style}`))
+
+
     
-    // Simulate API call for image generation
-    setTimeout(() => {
-      setGenerationState({
-        isGenerating: false,
-        result: {
-          imageUrl: `https://picsum.photos/seed/${Math.floor(Math.random() * 1000)}/800/1000`, 
-          prompt,
-          style
-        }
-      });
-    }, 3000);
-  };
+  }
+
+  useEffect(() => {
+
+    if(postSuccess && post) {
+      navigate("/feed")
+    }
+
+    if(postError && postErrorMessage) {
+      toast.error(postErrorMessage , { position : "top-center" , theme : "dark"})
+    }
+
+  }, [postError , postErrorMessage , postSuccess , post])
+
+  if (postLoading) {
+    return <Loader/>
+  }
+
 
   const handlePost = (imageUrl) => {
     console.log("Posting image to feed:", imageUrl);
@@ -44,7 +61,7 @@ export const GeneratePage = () => {
               isGenerating={generationState.isGenerating} 
             />
 
-            {(generationState.isGenerating || generationState.result) && (
+            {(generationState.isGenerating) && (
               <div className="mt-12 w-full pt-12 border-t border-zinc-800/50">
                 <GeneratedImage 
                   isGenerating={generationState.isGenerating}

@@ -1,19 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { MasonryGrid } from '../components/MasonryGrid';
-import { mockPosts } from '../mockData';
+import { useDispatch, useSelector } from 'react-redux';
+import { getPosts } from '../features/post/postSlice';
+
 
 export const FeedPage = () => {
-  const [loading, setLoading] = useState(true);
-  const [posts, setPosts] = useState([]);
+  const dispatch = useDispatch() 
+  const {posts ,postLoading , postSuccess , postError , postErrorMessage} = useSelector(state => state.post)
+
+  
+
 
   useEffect(() => {
-    // Simulate API fetch
-    const timer = setTimeout(() => {
-      setPosts(mockPosts);
-      setLoading(false);
-    }, 1200);
-    return () => clearTimeout(timer);
-  }, []);
+    dispatch(getPosts())
+  }, [])
+
+   if (postError) return <p className="text-red-400 p-8">{postErrorMessage}</p>
 
   return (
     <div className="min-h-screen bg-zinc-950 flex flex-col">
@@ -21,7 +23,7 @@ export const FeedPage = () => {
         <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
           <div className="max-w-[1600px] mx-auto">
             <h1 className="text-2xl font-bold text-white mb-6 animate-fadeIn">For You</h1>
-            <MasonryGrid posts={posts} loading={loading} />
+            <MasonryGrid posts={posts || []} loading={postLoading} />
           </div>
         </main>
       </div>

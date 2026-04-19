@@ -20,7 +20,7 @@ export const MasonryGrid = ({ posts = [], loading = false }) => {
   return (
     <div className="columns-2 md:columns-3 lg:columns-4 gap-6 pb-20">
       {posts.map(post => (
-        <PostCard key={post.id} post={post} />
+        <PostCard key={post._id} post={post} />
       ))}
     </div>
   );
