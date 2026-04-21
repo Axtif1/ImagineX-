@@ -1,14 +1,23 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../components/Button';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
 import { Sparkles, Hexagon, Image as ImageIcon, Users } from 'lucide-react';
 import { mockPosts } from '../mockData';
+import { useSelector } from 'react-redux';
 
 export const LandingPage = () => {
-  const navigate = useNavigate();
 
+  const { user } = useSelector(state => state.auth)
+
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if(user){
+      navigate("/feed")
+    }
+  },[user])
   return (
     <div className="flex flex-col min-h-screen bg-zinc-950">
       <Navbar />

@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Loader } from 'lucide-react';
 import { getProfile } from '../features/profile/profileSlice';
 import { Spinner } from '../components/Loader'
+import { toast } from 'react-toastify';
 
 export const ProfilePage = () => {
  
@@ -17,7 +18,7 @@ export const ProfilePage = () => {
   const { user ,  isSuccess , isError , isLoading , message } = useSelector(state => state.auth)
   const { profile ,  profileSuccess , profileError , profileLoading , profileErrorMessage } = useSelector(state => state.profile)
   const isOwnProfile = user?.name === username
-  
+
 
 
   useEffect(() => {
@@ -27,11 +28,15 @@ export const ProfilePage = () => {
 
     setLoading(false)
 
+    if(profileError && profileErrorMessage){
+      toast.error(profileErrorMessage , { position : "top-center" , theme : "dark"})
+    }
+
 
               
   }, [username])
 
-  if (isLoading || profileLoading || !profile) return <Spinner />
+  if (profileLoading || !profile) return <Spinner />
 
   return (
         <main className="flex-1 overflow-y-auto">
@@ -51,9 +56,9 @@ export const ProfilePage = () => {
                 <p className="text-zinc-300 max-w-lg mb-6 leading-relaxed">{profile?.bio}</p>
                 
                 <div className="flex items-center gap-6 mb-8 text-sm">
-                  <div className="flex flex-col"><span className="font-bold text-white text-lg">{profile?.posts.length || 0}</span><span className="text-zinc-500">Posts</span></div>
-                  <div className="flex flex-col"><span className="font-bold text-white text-lg">{profile?.followers.length || 0}</span><span className="text-zinc-500">Followers</span></div>
-                  <div className="flex flex-col"><span className="font-bold text-white text-lg">{profile?.followings.length || 0}</span><span className="text-zinc-500">Following</span></div>
+                  <div className="flex flex-col"><span className="font-bold text-white text-lg">{profile?.posts?.length || 0}</span><span className="text-zinc-500">Posts</span></div>
+                  <div className="flex flex-col"><span className="font-bold text-white text-lg">{profile?.followers?.length || 0}</span><span className="text-zinc-500">Followers</span></div>
+                  <div className="flex flex-col"><span className="font-bold text-white text-lg">{profile?.followings?.length || 0}</span><span className="text-zinc-500">Following</span></div>
                 </div>
 
                 <div className="flex gap-3">
@@ -67,7 +72,7 @@ export const ProfilePage = () => {
               {/* Profile Grid */}
               <div className="p-4 md:p-6 lg:p-8 max-w-[1600px] mx-auto">
                 <h2 className="text-xl font-bold text-white mb-8">Creations</h2>
-                <MasonryGrid posts={posts} loading={false} />
+                <MasonryGrid posts={profile?.posts || []} loading={profileLoading} />
               </div>
             </div>
           )}

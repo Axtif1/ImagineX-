@@ -5,7 +5,6 @@ import { LikeButton } from './LikeButton';
 
 export const PostCard = ({ post }) => {
 
-  console.log(post)
 
   const [imageLoaded, setImageLoaded] = useState(false);
   const navigate = useNavigate();
@@ -23,7 +22,7 @@ export const PostCard = ({ post }) => {
         {/* Placeholder sizing based on random logic or API data normally, here just loading the image */}
         <img 
           src={post?.imageLink} 
-          alt={post?.prompt || post?.caption}
+          alt={post?.caption || post?.prompt}
           loading="lazy"
           onLoad={() => setImageLoaded(true)}
           className={`w-full h-auto object-cover relative z-10 transition-opacity duration-500 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`} 
@@ -33,7 +32,7 @@ export const PostCard = ({ post }) => {
         <div className="absolute inset-0 z-20 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-4 pointer-events-none">
           <div className="flex justify-end pointer-events-auto">
             <div className="bg-zinc-950/60 backdrop-blur-md px-3 py-1.5 rounded-full">
-              <LikeButton initialLikes={post.likes.length || 0} />
+              <LikeButton initialLikes={post?.likes?.length || 0} />
             </div>
           </div>
           
@@ -47,7 +46,7 @@ export const PostCard = ({ post }) => {
               >
                 <img src={post?.user?.avatar} alt={post?.user?.name} className="h-6 w-6 rounded-full border border-zinc-500" />
                 <span className="text-sm font-medium text-zinc-300 group-hover/creator:text-white transition-colors truncate">
-                  {post?.user.name}
+                  {post?.user?.name}
                 </span>
               </Link>
             </div>

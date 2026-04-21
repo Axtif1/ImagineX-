@@ -28,6 +28,19 @@ const fetchPosts = async (token) => {
 }
 
 
-const postService = { generateAndPostImage , fetchPosts}
+const fetchPost = async (pid , token) => {
+    
+    let options = {
+        headers : {
+            authorization : `Bearer ${token}`
+        }
+    }
+
+    const response = await axios.get(API_URL + "/" + pid , options)
+    return response.data
+}
+
+
+const postService = { generateAndPostImage , fetchPosts , fetchPost}
 
 export default postService

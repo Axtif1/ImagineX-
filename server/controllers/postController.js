@@ -17,6 +17,20 @@ const generateAndPost = async (req , res) => {
   let userId = req.user.id
   let newPost
 
+  // Check if user Exist
+  const user = await User.findById(userId)
+
+  if(!user){
+    res.status(404)
+    throw new Error("User Not Dound !!")
+  }
+
+  // Check if user have enough credits 
+  if(user.credits < 1){
+    res.status(409)
+    throw new Error("Not Enough Credits!") 
+  }
+
 
     try {
       // Get Prompt
@@ -77,6 +91,9 @@ const generateAndPost = async (req , res) => {
   //Aggregate user Details in newPost Object
   await newPost.populate('user')
 
+
+  //Update Credits 
+  await User.findByIdAndUpdate(user._id, { credits : user.credits - 1 } , { new : true })
 
 
     res.status(201).json(newPost)
