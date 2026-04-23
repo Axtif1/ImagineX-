@@ -13,7 +13,7 @@ export const Sidebar = () => {
 
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  
+
 
 
   const handleLogout = () => {
@@ -22,26 +22,26 @@ export const Sidebar = () => {
 
   return (
     <aside className="hidden lg:flex flex-col w-64 h-full sticky top-16 border-r border-zinc-800 p-6 overflow-y-auto">
-      
-<div className="flex items-center gap-2 mb-8">
-  <Link to="/" className="flex items-center gap-2 group">
-    <div className="bg-gradient-to-tr from-violet-600 to-purple-500 rounded-lg p-1 group-hover:scale-105 transition-transform">
-      <Hexagon className="h-6 w-6 text-white" />
-    </div>
-    <span className="font-bold text-xl tracking-tight">Imaginex</span>
-  </Link>
-</div>
+
+      <div className="flex items-center gap-2 mb-8">
+        <Link to="/" className="flex items-center gap-2 group">
+          <div className="bg-gradient-to-tr from-violet-600 to-purple-500 rounded-lg p-1 group-hover:scale-105 transition-transform">
+            <Hexagon className="h-6 w-6 text-white" />
+          </div>
+          <span className="font-bold text-xl tracking-tight">Imaginex</span>
+        </Link>
+      </div>
       <div className="space-y-8 ">
         <div>
           <h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3">Discover</h3>
           <nav className="flex flex-col gap-1">
-            <NavLink to="/feed" className={({isActive}) => cn("flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors", isActive ? "bg-zinc-800 text-violet-400" : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50")}>
+            <NavLink to="/feed" className={({ isActive }) => cn("flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors", isActive ? "bg-zinc-800 text-violet-400" : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50")}>
               <Home className="h-5 w-5" /> Home
             </NavLink>
-            <NavLink to="/explore" className={({isActive}) => cn("flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors", isActive ? "bg-zinc-800 text-violet-400" : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50")}>
+            <NavLink to="/explore" className={({ isActive }) => cn("flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors", isActive ? "bg-zinc-800 text-violet-400" : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50")}>
               <Compass className="h-5 w-5" /> Explore
             </NavLink>
-            <NavLink to="/generate" className={({isActive}) => cn("flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors", isActive ? "bg-violet-600/10 text-violet-400" : "text-zinc-400 hover:text-violet-400 hover:bg-violet-600/10")}>
+            <NavLink to="/generate" className={({ isActive }) => cn("flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors", isActive ? "bg-violet-600/10 text-violet-400" : "text-zinc-400 hover:text-violet-400 hover:bg-violet-600/10")}>
               <Sparkles className="h-5 w-5" /> AI Generator
             </NavLink>
           </nav>

@@ -38,9 +38,9 @@ export const GeneratePage = () => {
 
   }, [postError , postErrorMessage , postSuccess , post])
 
-  if (postLoading) {
-    return <Loader/>
-  }
+  // if (postLoading) {
+  //   return <Loader/>
+  // }
 
 
   const handlePost = (imageUrl) => {

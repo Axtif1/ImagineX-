@@ -1,14 +1,19 @@
-import React, { useState } from 'react';
+// components/AdminProtectedRoute.jsx
+import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { AdminSidebar } from './AdminSidebar';
 import { Navbar } from './Navbar';
+import { useSelector } from 'react-redux';
 
 export const AdminProtectedRoute = () => {
-  // Using mock state for admin auth. In real app, check context/tokens.
-  const [isAdmin] = useState(true);
+  const { user } = useSelector(state => state.auth)
 
-  if (!isAdmin) {
-    return <Navigate to="/login" replace />;
+  if (!user) {
+    return <Navigate to="/login" replace />
+  }
+
+  if (!user.isAdmin) {
+    return <Navigate to="/feed" replace />
   }
 
   return (

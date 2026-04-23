@@ -11,7 +11,7 @@ const router = express.Router({mergeParams : true})
 router.get("/" , protect.forUser , postController.getPosts)
 router.post("/" , protect.forUser , postController.generateAndPost)
 router.get("/:pid" , protect.forUser , postController.getPost)
-router.put("/:pid" , protect.forUser , postController.likeAndUnlikePost)
+router.put("/:pid/like" , protect.forUser , postController.likeAndUnlikePost)
 router.post("/:pid" , protect.forUser , postController.reportPost)
 
 

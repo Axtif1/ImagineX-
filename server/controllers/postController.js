@@ -1,115 +1,66 @@
-import { GoogleGenAI } from "@google/genai";
-import fs from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import uploadToCloudinary from "../middleware/cloudinaryMiddleware.js";
+import { uploadBufferToCloudinary } from "../middleware/cloudinaryMiddleware.js";
 import Post from "../models/postModel.js";
 import User from "../models/userModel.js";
 import Report from "../models/reportModel.js"
 
+const generateAndPost = async (req, res) => {
 
+  const userId = req.user.id
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-
-
-const generateAndPost = async (req , res) => {
-
-  let userId = req.user.id
-  let newPost
-
-  // Check if user Exist
   const user = await User.findById(userId)
-
-  if(!user){
+  if (!user) {
     res.status(404)
-    throw new Error("User Not Dound !!")
+    throw new Error("User Not Found")
   }
 
-  // Check if user have enough credits 
-  if(user.credits < 1){
+  if (user.credits < 1) {
     res.status(409)
-    throw new Error("Not Enough Credits!") 
+    throw new Error("Not Enough Credits!")
   }
 
-
-    try {
-      // Get Prompt
-      const { prompt } = req.body
-
-      // Check If Prompt Is Coming In Body
-    if(!prompt){
-        res.status(409)
-        throw new Error("Kindly Provide Prompt To Generate Image")
-    }
-
-
-    // Initialize Google Gen AI Instance 
-    const ai = new GoogleGenAI({})
-
-    //API Call To Generate Image 
-  const response = await ai.models.generateContent({
-    model: "gemini-2.5-flash-image",
-    contents: prompt,
-  });
-
-
-
-   // Loop Through Correct Response 
-
-  for (const part of response.candidates[0].content.parts) {
-    if (part.text) {
-      console.log(part.text);
-    } else if (part.inlineData) {
-      const imageData = part.inlineData.data;
-      //Convert Text To Image 
-      const buffer = Buffer.from(imageData, "base64");
-      //Save Locally 
-      const filename = crypto.randomUUID() + ".png"
-      const filePath = path.join(__dirname , "../generated-content" , filename)
-      //Write File Into Server 
-      fs.writeFileSync(filePath , buffer)
-
-      //Upload Post 
-      const imageLink = await uploadToCloudinary(filePath)
-
-      //Remove Image From Server
-      fs.unlinkSync(filePath)
-
-      //Create Post
-
-      newPost = new Post({
-        user : userId , 
-        imageLink : imageLink.secure_url , 
-        prompt : prompt
-      })
-
-    }
+  const { prompt } = req.body
+  if (!prompt) {
+    res.status(409)
+    throw new Error("Kindly Provide Prompt To Generate Image")
   }
 
-  //Save Post To DB
+  // Build Pollinations URL — no API key needed
+  const encodedPrompt = encodeURIComponent(prompt)
+  const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&model=flux&nologo=true&seed=${Date.now()}`
+
+  // Fetch image from Pollinations
+  const imageResponse = await fetch(pollinationsUrl)
+  if (!imageResponse.ok) {
+    res.status(502)
+    throw new Error("Failed to generate image from Pollinations")
+  }
+
+  // Convert to buffer and upload directly to Cloudinary
+  const arrayBuffer = await imageResponse.arrayBuffer()
+  const buffer = Buffer.from(arrayBuffer)
+  const imageLink = await uploadBufferToCloudinary(buffer)
+  console.log("Cloudinary result:", imageLink)
+
+  const newPost = new Post({
+    user: userId,
+    imageLink: imageLink.secure_url,
+    prompt: prompt
+  })
+  console.log("New post object:", newPost)
+
   await newPost.save()
-  //Aggregate user Details in newPost Object
+  console.log("Post saved successfully")
   await newPost.populate('user')
 
+  await User.findByIdAndUpdate(userId, { credits: user.credits - 1 }, { new: true })
 
-  //Update Credits 
-  await User.findByIdAndUpdate(user._id, { credits : user.credits - 1 } , { new : true })
-
-
-    res.status(201).json(newPost)
-
-
-    } catch (error) {
-      res.status(409)
-      throw new Error("Post Not Created")
-    }
+  res.status(201).json(newPost)
 }
 
-
-const getPosts = async (req , res) => {
+const getPosts = async (req, res) => {
   const posts = await Post.find().populate('user')
 
-  if(!posts){
+  if (!posts) {
     res.status(404)
     throw new Error("Posts Not Found")
   }
@@ -119,10 +70,10 @@ const getPosts = async (req , res) => {
 }
 
 
-const getPost = async (req , res) => {
+const getPost = async (req, res) => {
   const post = await Post.findById(req.params.pid).populate('user')
 
-  if(!post){
+  if (!post) {
     res.status(404)
     throw new Error("Posts Not Found")
   }
@@ -132,13 +83,13 @@ const getPost = async (req , res) => {
 }
 
 
-const likeAndUnlikePost = async (req , res) => {
+const likeAndUnlikePost = async (req, res) => {
 
   let currentUser = await User.findById(req.user._id)
 
 
   //Check if user exists
-  if(!currentUser) {
+  if (!currentUser) {
     res.status(404)
     throw new Error('User Not Found')
   }
@@ -147,60 +98,60 @@ const likeAndUnlikePost = async (req , res) => {
   //Check If Post Exist
   const post = await Post.findById(req.params.pid).populate('user')
 
-  if(!post){
+  if (!post) {
     res.status(404)
     throw new Error("Posts Not Found")
-  } 
+  }
 
-  
-    // Check if already liked
-    if (post.likes.includes(currentUser._id)) {
-        // Dislike
-        // Remove Follower from likes
-        let updatedLikesList = post.likes.filter(like => like.toString() !== currentUser._id.toString())
-        post.likes = updatedLikesList
-        await post.save()
-    } else {
-        // Like
-        // Add Follower in Liked
-        post.likes.push(currentUser._id)
-        await post.save()
-    }
 
-    // Populate after save using the Post model directly
-    await Post.populate(post, { path: 'likes' })
+  // Check if already liked
+  if (post.likes.includes(currentUser._id)) {
+    // Dislike
+    // Remove Follower from likes
+    let updatedLikesList = post.likes.filter(like => like.toString() !== currentUser._id.toString())
+    post.likes = updatedLikesList
+    await post.save()
+  } else {
+    // Like
+    // Add Follower in Liked
+    post.likes.push(currentUser._id)
+    await post.save()
+  }
 
-    res.status(200).json(post)
+  // Populate after save using the Post model directly
+  await Post.populate(post, { path: 'likes' })
+
+  res.status(200).json(post)
 
 
 
 }
 
 
-const reportPost = async (req , res) =>{
+const reportPost = async (req, res) => {
 
 
-  const {text} = req.body
+  const { text } = req.body
   const postId = req.params.pid
   const userId = req.user._id
 
-  if(!text){
+  if (!text) {
     res.status(409)
     throw new Error("Please Enter Text")
   }
 
 
   const newReport = new Report({
-    user : userId,
-    post : postId,
-    text : text,
+    user: userId,
+    post: postId,
+    text: text,
   })
 
-  await newReport.save() 
-  await newReport.populate('user') 
-  await newReport.populate('post') 
+  await newReport.save()
+  await newReport.populate('user')
+  await newReport.populate('post')
 
-  if(!newReport){
+  if (!newReport) {
     res.status(409)
     throw new Error("Unable To Reports This Post")
   }
@@ -212,7 +163,7 @@ const reportPost = async (req , res) =>{
 
 
 
-const postController = {generateAndPost , getPosts , getPost , likeAndUnlikePost , reportPost}
+const postController = { generateAndPost, getPosts, getPost, likeAndUnlikePost, reportPost }
 
 
 

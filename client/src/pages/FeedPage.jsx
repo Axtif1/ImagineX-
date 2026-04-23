@@ -7,45 +7,32 @@ import { toast } from 'react-toastify';
 
 
 export const FeedPage = () => {
-  const dispatch = useDispatch() 
-  const {posts ,postLoading , postSuccess , postError , postErrorMessage} = useSelector(state => state.post)
-  const { user ,  isSuccess , isError , isLoading , message } = useSelector(state => state.auth)
-  const {profile} = useSelector(state => state.profile)
-  
-  // const myFeed = posts.filter((post) => post.user._id === profile.followings[0]._id)
-  // console.log(profile)
+  const dispatch = useDispatch()
+  const { posts, postLoading, postError, postErrorMessage } = useSelector(state => state.post)
+  const { user, isError, message } = useSelector(state => state.auth)
+  const { profile } = useSelector(state => state.profile)
 
-  // useEffect(() => {
-  //   // Fetch Post
-  //   dispatch(getPosts())
-  //   // Fetch Profile
-  //   dispatch(getProfile(user.name))
+  // ✅ SAFE: uses optional chaining on BOTH profile AND followings
+  // Falls back to all posts while profile loads or if user follows nobody
+  const myFeed = profile?.followings?.length > 0
+    ? posts.filter(post =>
+        profile.followings.some(
+          f => f === post.user?._id || f?._id === post.user?._id
+        )
+      )
+    : posts
 
-
-  //   if (postError && postErrorMessage || isError && message){
-  //     toast.error(postErrorMessage || message , {position : "top-center"})
-  //   } 
-  // }, [postError , postErrorMessage , isError , message])
-   // ✅ Sirf mount pe fetch karo
+  // Fetch posts and own profile once on mount
   useEffect(() => {
     dispatch(getPosts())
     if (user?.name) dispatch(getProfile(user.name))
   }, [])
 
-  // ✅ Errors alag useEffect mein handle karo
+  // Handle errors in a separate effect
   useEffect(() => {
     if (postError && postErrorMessage) toast.error(postErrorMessage, { position: 'top-center' })
     if (isError && message) toast.error(message, { position: 'top-center' })
   }, [postError, postErrorMessage, isError, message])
-
-  // ✅ profile load hone ke baad hi myFeed banao
-  const myFeed = profile?.followings?.length > 0
-    ? posts.filter(post => 
-        profile.followings.some(f => f._id === post.user._id)
-      )
-    : posts // ✅ followings nahi hain toh sab posts dikhao
-
-
 
   return (
     <div className="min-h-screen bg-zinc-950 flex flex-col">
@@ -53,7 +40,7 @@ export const FeedPage = () => {
         <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
           <div className="max-w-[1600px] mx-auto">
             <h1 className="text-2xl font-bold text-white mb-6 animate-fadeIn">For You</h1>
-            <MasonryGrid posts={posts || []} loading={postLoading} />
+            <MasonryGrid posts={myFeed} loading={postLoading} />
           </div>
         </main>
       </div>

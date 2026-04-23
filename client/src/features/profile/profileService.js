@@ -6,7 +6,6 @@ const API_URL = "/api/profile"
 
 const fetchProfile = async(username) =>{
     const response = await axios.get('/api/profile/' + username)
-    console.log(response)
     return response.data
 }
 

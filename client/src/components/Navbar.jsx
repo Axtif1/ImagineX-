@@ -10,10 +10,10 @@ export const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [showDropdown, setShowDropdown] = useState(false)
 
-  
-  const { user } =  useSelector(state => state.auth)
+
+  const { user } = useSelector(state => state.auth)
   const isLoggedIn = !!user
-  
+
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
@@ -27,34 +27,34 @@ export const Navbar = () => {
       console.log("Searching for:", query)
     }
   }
-  
+
   const handleLogout = () => {
     dispatch(logoutUser())
     navigate("/login")
   }
-  
+
   return (
     <header className="sticky top-0 z-50 w-full backdrop-blur-md bg-zinc-950/80 border-b border-zinc-800">
       <div className="flex h-16 items-center justify-between px-4 md:px-6">
         <div className="flex items-center gap-4 flex-1">
-          
-          
+
+
           <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-xl relative ml-6">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
-            <input 
+            <input
               name="search"
-              type="text" 
-              placeholder="Search inspiration..." 
+              type="text"
+              placeholder="Search inspiration..."
               className="w-full h-10 bg-zinc-900 border border-zinc-700/50 rounded-full pl-10 pr-4 text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 hover:bg-zinc-800 transition-colors"
             />
           </form>
         </div>
 
         <nav className="hidden md:flex items-center gap-x-6 relative left-3">
-          <NavLink to="/feed" className={({isActive}) => cn("text-sm font-medium transition-colors hover:text-zinc-100", isActive ? "text-violet-400" : "text-zinc-400")}>
+          <NavLink to="/feed" className={({ isActive }) => cn("text-sm font-medium transition-colors hover:text-zinc-100", isActive ? "text-violet-400" : "text-zinc-400")}>
             Home
           </NavLink>
-          <NavLink to="/explore" className={({isActive}) => cn("text-sm font-medium transition-colors hover:text-zinc-100", isActive ? "text-violet-400" : "text-zinc-400")}>
+          <NavLink to="/explore" className={({ isActive }) => cn("text-sm font-medium transition-colors hover:text-zinc-100", isActive ? "text-violet-400" : "text-zinc-400")}>
             Explore
           </NavLink>
         </nav>
@@ -69,15 +69,15 @@ export const Navbar = () => {
                 <Bell className="h-5 w-5" />
                 <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-red-500 border border-zinc-950 animate-pulse" />
               </button>
-              
+
               <div className="relative">
-                <button 
+                <button
                   onClick={() => setShowDropdown(!showDropdown)}
                   className="flex items-center gap-2"
                 >
                   <div className='h-9 w-9 rounded-full object-cover border border-zinc-700 hover:border-violet-500 transition-colors flex items-center justify-center'>{user?.name?.charAt(0).toUpperCase()}</div>
                 </button>
-                
+
                 {showDropdown && (
                   <div className="absolute right-0 top-full mt-2 w-48 rounded-xl bg-zinc-900 border border-zinc-800 shadow-xl overflow-hidden animate-fadeIn text-sm">
                     <div className="p-3 border-b border-zinc-800">
@@ -91,6 +91,12 @@ export const Navbar = () => {
                       <Link to="/settings" onClick={() => setShowDropdown(false)} className="flex w-full items-center px-3 py-2 text-zinc-300 hover:text-zinc-100 hover:bg-zinc-800 rounded-lg transition-colors">
                         Settings
                       </Link>
+                       {/* Admin Panel — sirf admin ko dikhega */}
+                        {user?.isAdmin && (
+                          <Link to="/admin/dashboard" onClick={() => setShowDropdown(false)} className="flex w-full items-center px-3 py-2 text-violet-400 hover:bg-violet-500/10 rounded-lg transition-colors">
+                            Admin Panel
+                          </Link>
+                        )}
                       <button onClick={handleLogout} className="flex w-full items-center px-3 py-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors mt-1">
                         Log out
                       </button>
@@ -114,19 +120,24 @@ export const Navbar = () => {
 
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-zinc-800 bg-zinc-950/95 p-4 animate-fadeIn space-y-4">
-           <form onSubmit={handleSearch} className="flex relative w-full mb-4">
+          <form onSubmit={handleSearch} className="flex relative w-full mb-4">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
-            <input 
+            <input
               name="search"
-              type="text" 
-              placeholder="Search..." 
+              type="text"
+              placeholder="Search..."
               className="w-full h-10 bg-zinc-900 border border-zinc-700/50 rounded-full pl-10 pr-4 text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none"
             />
           </form>
           <div className="flex flex-col gap-2">
             <Link to="/feed" className="px-4 py-3 rounded-lg hover:bg-zinc-900 text-zinc-300 hover:text-zinc-100" onClick={() => setMobileMenuOpen(false)}>Home</Link>
             <Link to="/explore" className="px-4 py-3 rounded-lg hover:bg-zinc-900 text-zinc-300 hover:text-zinc-100" onClick={() => setMobileMenuOpen(false)}>Explore</Link>
-            <Link to="/generate" className="px-4 py-3 rounded-lg bg-violet-600/10 text-violet-400" onClick={() => setMobileMenuOpen(false)}>Create Avatar</Link>
+            {/* <Link to="/generate" className="px-4 py-3 rounded-lg bg-violet-600/10 text-violet-400" onClick={() => setMobileMenuOpen(false)}>Create Avatar</Link> */}
+            {isLoggedIn && user?.isAdmin && (
+              <Link to="/admin/dashboard" className="px-4 py-3 rounded-lg bg-violet-600/10 text-violet-400" onClick={() => setMobileMenuOpen(false)}>
+                Admin Panel
+              </Link>
+            )}
             {isLoggedIn && <Link to={`/profile/${user?.name}`} className="px-4 py-3 rounded-lg hover:bg-zinc-900 text-zinc-300 hover:text-zinc-100" onClick={() => setMobileMenuOpen(false)}>Profile</Link>}
           </div>
         </div>

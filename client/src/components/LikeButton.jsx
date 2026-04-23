@@ -1,14 +1,23 @@
 import React, { useState } from 'react';
 import { Heart } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { useDispatch, useSelector } from 'react-redux';
+import { likeUnlikePost } from '../features/post/postSlice';
 
-export const LikeButton = ({ initialLikes = 0, isLiked = false, className }) => {
+export const LikeButton = ({ postId, initialLikes = 0, isLiked = false, className }) => {
+  const dispatch = useDispatch()
+  const { user } = useSelector(state => state.auth)
+
   const [liked, setLiked] = useState(isLiked);
   const [likesCount, setLikesCount] = useState(initialLikes);
 
   const toggleLike = (e) => {
     e.preventDefault();
     e.stopPropagation();
+
+    if (!postId) return;
+
+    // Optimistic UI update
     if (liked) {
       setLiked(false);
       setLikesCount(p => p - 1);
@@ -16,7 +25,9 @@ export const LikeButton = ({ initialLikes = 0, isLiked = false, className }) => 
       setLiked(true);
       setLikesCount(p => p + 1);
     }
-    // console.log("TODO: call API to like/unlike");
+
+    // Dispatch to API
+    dispatch(likeUnlikePost(postId))
   };
 
   return (
