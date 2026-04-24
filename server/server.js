@@ -2,6 +2,8 @@ import express from "express"
 import dotenv from "dotenv"
 import colors from "colors"
 import connectDB from "./config/dbconfig.js"
+import path from "path"
+import { fileURLToPath } from "url"
 
 //Local Imports
 import authRoutes from "./routes/authRoutes.js" 
@@ -28,12 +30,7 @@ app.use(express.urlencoded({ extended: false }))
 
 // console.log(process.env.MONGO_URI)
 
-// Default Route
-app.get("/" , (req , res) => {
-    res.json({
-        message : "WELCOME TO IMAGINEX API"
-    })
-})
+// Root route handled below in production config
 
 
 // Auth Routes
@@ -55,6 +52,23 @@ app.use("/api/posts" , postRoutes)
 //Save Post Routes
 app.use("/api/saved-posts" , savedPostRoutes)
 
+// Serve Frontend
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+if (process.env.NODE_ENV === "production") {
+    app.use(express.static(path.join(__dirname, "../client/dist")));
+
+    app.get("*", (req, res) =>
+        res.sendFile(
+            path.resolve(__dirname, "../", "client", "dist", "index.html")
+        )
+    );
+} else {
+    app.get("/", (req, res) => {
+        res.json({ message: "WELCOME TO IMAGINEX API" });
+    });
+}
 
 //Error Handler 
 app.use(errorHandler)

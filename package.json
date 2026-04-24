@@ -8,7 +8,8 @@
     "start": "node server/server.js",
     "dev": "node --watch server/server.js",
     "client": "npm run dev --prefix client",
-    "fullstack": "concurrently \"npm run dev\" \"npm run client\""
+    "fullstack": "concurrently \"npm run dev\" \"npm run client\"",
+    "build": "npm install --prefix client && npm run build --prefix client"
   },
   "author": "",
   "license": "ISC",
