@@ -51,6 +51,7 @@ const registerUser = async (req , res) => {
 
 
 const loginUser = async (req , res) => {
+    console.log("Login attempt:", req.body.email)
     const {email , password} = req.body
 
     //check if All fields are coming
