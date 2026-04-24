@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react';
-import { Button } from '../../components/Button';
-import { useDispatch, useSelector } from 'react-redux';
-import { getReports } from '../../features/admin/adminSlice';
-import { toast } from 'react-toastify';
+import React, { useEffect } from 'react'
+import { Button } from '../../components/Button'
+import { useDispatch, useSelector } from 'react-redux'
+import { getReports } from '../../features/admin/adminSlice'
+import { toast } from 'react-toastify'
+import { deleteAdminPost, dismissReport } from '../../features/admin/adminSlice.js'
 
 export const AdminReports = () => {
   const dispatch = useDispatch()
@@ -17,6 +18,20 @@ export const AdminReports = () => {
       toast.error(adminErrorMessage, { position: "top-center", theme: "dark" })
     }
   }, [adminError, adminErrorMessage])
+
+  const handleDeletePost = (pid, rid) => {
+    dispatch(deleteAdminPost(pid))
+        .unwrap()
+        .then(() => toast.success("Post deleted", { position: "top-center", theme: "dark" }))
+        .catch(err => toast.error(err, { position: "top-center", theme: "dark" }))
+}
+
+const handleDismiss = (rid) => {
+    dispatch(dismissReport(rid))
+        .unwrap()
+        .then(() => toast.success("Report dismissed", { position: "top-center", theme: "dark" }))
+        .catch(err => toast.error(err, { position: "top-center", theme: "dark" }))
+}
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 animate-fadeIn text-white">
@@ -78,14 +93,24 @@ export const AdminReports = () => {
                   {report.createdAt ? new Date(report.createdAt).toLocaleDateString() : '—'}
                 </td>
                 <td className="px-6 py-4 text-right space-x-2">
-                  <Button variant="secondary" size="sm">Dismiss</Button>
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    className="bg-red-900/40 text-red-400 hover:bg-red-900/60"
-                  >
-                    Delete Post
-                  </Button>
+                  <Button 
+    variant="secondary" 
+    size="sm"
+    onClick={() => handleDismiss(report._id)}
+    disabled={adminLoading}
+>
+    Dismiss
+</Button>
+<Button
+    variant="danger"
+    size="sm"
+    className="bg-red-900/40 text-red-400 hover:bg-red-900/60"
+    onClick={() => handleDeletePost(report.post?._id, report._id)}
+    disabled={adminLoading}
+>
+    Delete Post
+</Button>
+
                 </td>
               </tr>
             ))}

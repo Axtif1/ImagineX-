@@ -3,7 +3,7 @@ import axios from "axios"
 const API_URL = "/api/posts"
 
 
-const generateAndPostImage = async (prompt, token) => {
+const generateAndPostImage = async (prompt, token, width = "1024", height = "1024") => {
     
     let options = {
         headers: {
@@ -11,8 +11,8 @@ const generateAndPostImage = async (prompt, token) => {
         }
     }
     
-    const response = await axios.post(API_URL, { prompt: prompt }, options)
-    return response.data
+     const response = await axios.post(API_URL, { prompt, width, height }, options)
+     return response.data
 }
 
 const fetchPosts = async (token) => {

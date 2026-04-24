@@ -18,13 +18,11 @@ export const GeneratePage = () => {
   });
 
 
-  const handleGenerate = ({ prompt, style }) => {
-    setGenerationState({ isGenerating: true});
-    dispatch(GeneratePost(`${prompt} , with this style ${style}`))
-
-
-    
-  }
+  const handleGenerate = ({ prompt, style, ratio }) => {
+  setGenerationState({ isGenerating: true })
+  const [width, height] = ratio.split("x")  
+  dispatch(GeneratePost({ prompt: `${prompt}, with this style ${style}`, width, height }))
+}
 
   useEffect(() => {
 

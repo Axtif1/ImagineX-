@@ -120,16 +120,14 @@ export default postSlice.reducer
 
 
 // Generate Post 
-export const GeneratePost = createAsyncThunk("POST/GENERATE", async (prompt, thunkAPI) => {
-
-    let token = thunkAPI.getState().auth.user.token
-
-    try {
-        return await postService.generateAndPostImage(prompt, token)
-    } catch (error) {
-        let message = error.response?.data?.message || "Failed to generate image"
-        return thunkAPI.rejectWithValue(message)
-    }
+export const GeneratePost = createAsyncThunk("POST/GENERATE", async ({ prompt, width, height }, thunkAPI) => {
+  let token = thunkAPI.getState().auth.user.token
+  try {
+    return await postService.generateAndPostImage(prompt, token, width, height)
+  } catch (error) {
+    let message = error.response?.data?.message || "Failed to generate image"
+    return thunkAPI.rejectWithValue(message)
+  }
 })
 
 // Get Posts 

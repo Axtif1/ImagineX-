@@ -162,7 +162,10 @@ export const PostDetailPage = () => {
                   {!isOwnPost && (
                     <FollowButton
                       userId={post.user._id}
-                      initialIsFollowing={false}
+                      initialIsFollowing={post.user?.followers?.some(
+                        f => f === user?.id || f?._id === user?.id
+                      ) || false}
+                      onFollowChange={() => dispatch(getPost(id))}
                     />
                   )}
                 </div>

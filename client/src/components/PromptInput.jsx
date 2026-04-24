@@ -5,14 +5,21 @@ import { cn } from '../lib/utils';
 
 const styles = ["Cyberpunk", "Anime", "Photorealistic", "Oil Painting", "3D Render", "Watercolor", "Sketch"];
 
-export const PromptInput = ({ onGenerate, isGenerating }) => {
-  const [prompt, setPrompt] = useState("");
-  const [selectedStyle, setSelectedStyle] = useState("Cyberpunk");
+const ratios = [
+  { label: "1:1", value: "1024x1024", icon: "⬜" },
+  { label: "16:9", value: "1024x576", icon: "▬" },
+  { label: "9:16", value: "576x1024", icon: "▯" },
+  { label: "4:3", value: "1024x768", icon: "▭" },
+]
 
+export const PromptInput = ({ onGenerate, isGenerating }) => {
+  const [prompt, setPrompt] = useState("")
+  const [selectedStyle, setSelectedStyle] = useState("Cyberpunk")
+  const [selectedRatio, setSelectedRatio] = useState(ratios[0])
   const handleGenerate = (e) => {
     e.preventDefault();
     if (prompt.trim()) {
-      onGenerate({ prompt, style: selectedStyle });
+      onGenerate({ prompt, style: selectedStyle, ratio: selectedRatio.value });
     }
   };
 
@@ -58,6 +65,30 @@ export const PromptInput = ({ onGenerate, isGenerating }) => {
             ))}
           </div>
         </div>
+
+        {/* Ratio Selector — style div ke baad */}
+<div className="mb-6">
+  <label className="block text-sm font-medium text-zinc-400 mb-3 flex items-center gap-2">
+    <ImageIcon className="h-4 w-4" /> Aspect Ratio
+  </label>
+  <div className="flex flex-wrap gap-2">
+    {ratios.map(ratio => (
+      <button
+        key={ratio.label}
+        type="button"
+        onClick={() => setSelectedRatio(ratio)}
+        className={cn(
+          "px-4 py-2 rounded-full text-sm font-medium transition-colors border flex items-center gap-2",
+          selectedRatio.label === ratio.label
+            ? "bg-violet-600/20 border-violet-500 text-violet-300"
+            : "bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200"
+        )}
+      >
+        <span className="text-xs">{ratio.icon}</span> {ratio.label}
+      </button>
+    ))}
+  </div>
+</div>
 
         <div className="flex justify-end">
           <Button 

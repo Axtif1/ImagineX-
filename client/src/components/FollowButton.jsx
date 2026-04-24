@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react'
+import { getProfile } from '../features/profile/profileSlice'
 import { UserPlus, UserCheck } from 'lucide-react';
 import { Button } from './Button';
 import { cn } from '../lib/utils';
@@ -6,36 +7,52 @@ import { useDispatch, useSelector } from 'react-redux';
 import { followUser, unfollowUser } from '../features/follow/followSlice';
 import { toast } from 'react-toastify';
 
-export const FollowButton = ({ userId, initialIsFollowing = false, className, size = 'sm' }) => {
+export const FollowButton = ({ userId, initialIsFollowing = false, className, size = 'sm', onFollowChange }) => {
   const dispatch = useDispatch()
   const { followLoading } = useSelector(state => state.follow)
+  const { user } = useSelector(state => state.auth) 
+  const [isFollowing, setIsFollowing] = useState(initialIsFollowing)
 
-  const [isFollowing, setIsFollowing] = useState(initialIsFollowing);
+
+  useEffect(() => {
+    setIsFollowing(initialIsFollowing)
+  }, [initialIsFollowing])
 
   const handleFollow = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault()
+    e.stopPropagation()
 
-    if (!userId) return;
+    if (!userId) {
+      toast.error("User ID missing", { position: "top-center" })
+      return
+    }
 
     if (isFollowing) {
-      // Optimistic update
       setIsFollowing(false)
-      dispatch(unfollowUser(userId)).unwrap().catch((err) => {
-        // Revert on failure
-        setIsFollowing(true)
-        toast.error(err || "Failed to unfollow", { position: "top-center", theme: "dark" })
-      })
+      dispatch(unfollowUser(userId))
+        .unwrap()
+        .then(() => {
+          if (user?.name) dispatch(getProfile(user.name))
+          if (onFollowChange) onFollowChange()
+        })
+        .catch((err) => {
+          setIsFollowing(true)
+          toast.error(err || "Failed to unfollow", { position: "top-center", theme: "dark" })
+        })
     } else {
-      // Optimistic update
       setIsFollowing(true)
-      dispatch(followUser(userId)).unwrap().catch((err) => {
-        // Revert on failure
-        setIsFollowing(false)
-        toast.error(err || "Failed to follow", { position: "top-center", theme: "dark" })
-      })
+      dispatch(followUser(userId))
+        .unwrap()
+        .then(() => {
+          if (user?.name) dispatch(getProfile(user.name))
+          if (onFollowChange) onFollowChange()
+        })
+        .catch((err) => {
+          setIsFollowing(false)
+          toast.error(err || "Failed to follow", { position: "top-center", theme: "dark" })
+        })
     }
-  };
+  }
 
   return (
     <Button

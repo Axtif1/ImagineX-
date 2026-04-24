@@ -112,6 +112,28 @@ const adminSlice = createSlice({
                 state.adminError = true
                 state.adminErrorMessage = action.payload
             })
+            .addCase(deleteAdminPost.fulfilled, (state, action) => {
+    state.adminLoading = false
+    state.posts = state.posts.filter(p => p._id !== action.payload)
+    // ✅ Report bhi hatao jiska post delete hua
+    state.reports = state.reports.filter(r => r.post?._id !== action.payload)
+})
+.addCase(deleteAdminPost.rejected, (state, action) => {
+    state.adminLoading = false
+    state.adminError = true
+    state.adminErrorMessage = action.payload
+})
+
+// Dismiss Report
+.addCase(dismissReport.fulfilled, (state, action) => {
+    state.adminLoading = false
+    state.reports = state.reports.filter(r => r._id !== action.payload)
+})
+.addCase(dismissReport.rejected, (state, action) => {
+    state.adminLoading = false
+    state.adminError = true
+    state.adminErrorMessage = action.payload
+})
     }
 })
 
@@ -168,6 +190,30 @@ export const updateAdminPost = createAsyncThunk("ADMIN/UPDATE_POST", async ({ pi
         return await adminService.updateAdminPost(pid, data, token)
     } catch (error) {
         const message = error.response?.data?.message || "Failed to update post"
+        return thunkAPI.rejectWithValue(message)
+    }
+})
+
+// Delete Post
+export const deleteAdminPost = createAsyncThunk("ADMIN/DELETE_POST", async (pid, thunkAPI) => {
+    try {
+        const token = thunkAPI.getState().auth.user.token
+        await adminService.deletePost(pid, token)
+        return pid // ← deleted post ki id return karo
+    } catch (error) {
+        const message = error.response?.data?.message || "Failed to delete post"
+        return thunkAPI.rejectWithValue(message)
+    }
+})
+
+// Dismiss Report
+export const dismissReport = createAsyncThunk("ADMIN/DISMISS_REPORT", async (rid, thunkAPI) => {
+    try {
+        const token = thunkAPI.getState().auth.user.token
+        await adminService.dismissReport(rid, token)
+        return rid // ← dismissed report ki id return karo
+    } catch (error) {
+        const message = error.response?.data?.message || "Failed to dismiss report"
         return thunkAPI.rejectWithValue(message)
     }
 })

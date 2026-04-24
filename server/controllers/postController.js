@@ -18,15 +18,14 @@ const generateAndPost = async (req, res) => {
     throw new Error("Not Enough Credits!")
   }
 
-  const { prompt } = req.body
+  const { prompt, width = "1024", height = "1024" } = req.body
   if (!prompt) {
     res.status(409)
     throw new Error("Kindly Provide Prompt To Generate Image")
   }
-
   // Build Pollinations URL — no API key needed
   const encodedPrompt = encodeURIComponent(prompt)
-  const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&model=flux&nologo=true&seed=${Date.now()}`
+  const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${width}&height=${height}&model=flux&nologo=true&seed=${Date.now()}`
 
   // Fetch image from Pollinations
   const imageResponse = await fetch(pollinationsUrl)

@@ -47,12 +47,28 @@ const updateAdminPost = async (pid, data, token) => {
     return response.data
 }
 
+// Delete a post (admin)
+const deletePost = async (pid, token) => {
+    const options = { headers: { authorization: `Bearer ${token}` } }
+    const response = await axios.delete(`${API_URL}/post/${pid}`, options)
+    return response.data
+}
+
+// Dismiss a report (admin)
+const dismissReport = async (rid, token) => {
+    const options = { headers: { authorization: `Bearer ${token}` } }
+    const response = await axios.delete(`${API_URL}/report/${rid}`, options)
+    return response.data
+}
+
 const adminService = {
     fetchAllUsers,
     fetchAllPosts,
     fetchReports,
     toggleUserStatus,
-    updateAdminPost
+    updateAdminPost,
+    deletePost,    
+    dismissReport
 }
 
 export default adminService

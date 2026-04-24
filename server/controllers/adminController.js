@@ -17,7 +17,7 @@ const getAllUsers = async (req , res) => {
 
 
 const getAllPosts = async (req , res) => {
-    const posts = await Post.find()
+    const posts = await Post.find().populate('user', 'name email')
 
     if(!posts){
         res.status(404)
@@ -51,7 +51,11 @@ const updatePost = async (req , res) => {
 
 
 const getReports = async (req , res) => {
+    
+    // ✅ user aur post dono populate karo
     const reports = await Report.find()
+        .populate('user', 'name email')
+        .populate('post', 'imageLink prompt')
 
     if(!reports){
         res.status(404)
@@ -74,10 +78,14 @@ const updateUser = async (req , res) => {
         throw new Error('User Not Found')
     }
 
-    let updatedUser = await User.findByIdAndUpdate(userId , {isActive : user.isActive ? false : true } , {new : true} )
+    let updatedUser = await User.findByIdAndUpdate(
+        userId,
+        { isActive: !user.isActive },  // ✅ cleaner toggle
+        { new: true }
+    )
 
 
-    if(!updateUser){
+    if(!updatedUser){
         res.status(404)
         throw new Error('User Not Updated')
     }
@@ -85,11 +93,30 @@ const updateUser = async (req , res) => {
     res.status(200).json(updatedUser)
 }
 
+const deletePost = async (req, res) => {
+    const post = await Post.findById(req.params.pid)
+    if (!post) {
+        res.status(404)
+        throw new Error("Post Not Found")
+    }
+    await Post.findByIdAndDelete(req.params.pid)
+    res.status(200).json({ _id: req.params.pid, message: "Post Deleted" })
+}
+
+const dismissReport = async (req, res) => {
+    const report = await Report.findById(req.params.rid)
+    if (!report) {
+        res.status(404)
+        throw new Error("Report Not Found")
+    }
+    await Report.findByIdAndDelete(req.params.rid)
+    res.status(200).json({ _id: req.params.rid, message: "Report Dismissed" })
+}
 
 
 
 
-const adminController = {getAllUsers , getAllPosts , updatePost , getReports , updateUser}
+const adminController = {getAllUsers , getAllPosts , updatePost , getReports , updateUser , deletePost , dismissReport }
 
 
 export default adminController
