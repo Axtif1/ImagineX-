@@ -41,7 +41,7 @@ export const LoginForm = () => {
 
 
   useEffect(() => {
-    if(isSuccess || user){
+    if(user){
       navigate("/feed")
     }
 

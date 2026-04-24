@@ -38,21 +38,13 @@ export const RegisterForm = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-
-    //Register User 
     dispatch(registerUser(formData))
-    
-    // Simulate API delay
-    setTimeout(() => {
-      navigate('/feed');
-    }, 1000);
   };
 
 
   useEffect(() => {
     if(user){
-      navigate("/")
+      navigate("/feed")
     }
 
     if(isError && message) {
